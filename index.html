@@ -742,10 +742,14 @@
   <span class="section-tag">Get Started</span>
   <h2 class="section-title" style="max-width:100%; margin-bottom: 14px;">Priced around your needs.</h2>
   <p style="font-size:16px; color:var(--muted); margin-bottom: 48px;">RecapHQ is a tailored service. Pricing is based on your meeting volume and requirements. Get in touch and we will put together a proposal that fits your organisation.</p>
-  <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-    <a href="mailto:hello@mitchellsolutions.org?subject=RecapHQ Enquiry" class="btn-primary" style="font-size:16px; padding:16px 40px;">Request a proposal →</a>
-    <p style="font-size:13px; color:var(--muted);">We respond within one business day.</p>
-  </div>
+  <form name="recaphq-proposal" method="POST" data-netlify="true" style="max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:12px;">
+    <input type="hidden" name="form-name" value="recaphq-proposal" />
+    <input type="text" name="name" placeholder="Your name" required style="background:var(--surface2); border:1px solid var(--border2); border-radius:8px; padding:13px 18px; color:var(--text); font-size:15px; font-family:'DM Sans',sans-serif; outline:none;" />
+    <input type="email" name="email" placeholder="Work email" required style="background:var(--surface2); border:1px solid var(--border2); border-radius:8px; padding:13px 18px; color:var(--text); font-size:15px; font-family:'DM Sans',sans-serif; outline:none;" />
+    <textarea name="message" placeholder="Tell us briefly about your meeting volume and what you need" rows="4" style="background:var(--surface2); border:1px solid var(--border2); border-radius:8px; padding:13px 18px; color:var(--text); font-size:15px; font-family:'DM Sans',sans-serif; outline:none; resize:vertical;"></textarea>
+    <button type="submit" class="btn-primary" style="font-size:15px; padding:14px 32px; border:none; cursor:pointer;">Request a proposal →</button>
+    <p style="font-size:13px; color:var(--muted); text-align:center;">We respond within one business day.</p>
+  </form>
 </div>
 
 <!-- TESTIMONIAL -->
