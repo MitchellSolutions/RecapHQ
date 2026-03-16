@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecapHQ — Your Meetings. Remembered. Actioned. Searchable.</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b10;
+    --surface: #141220;
+    --surface2: #1a1728;
+    --border: #241f35;
+    --border2: #2e2845;
+    --accent: #a78bfa;
+    --accent-bright: #c4b5fd;
+    --accent-dim: #1e1730;
+    --accent-deep: #150f2a;
+    --green: #34d399;
+    --green-dim: #0d3d2a;
+    --text: #e8e4f0;
+    --muted: #6b6480;
+    --muted2: #4a4460;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 999; opacity: 0.35;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(12,11,16,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    height: 62px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .nav-logo { font-family: 'Instrument Serif', serif; font-size: 20px; color: #fff; }
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+
+  .nav-link {
+    font-size: 13px; color: var(--muted); cursor: pointer;
+    transition: color 0.15s; text-decoration: none;
+  }
+
+  .nav-link:hover { color: var(--text); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: #0c0b10; font-weight: 600; font-size: 13px;
+    padding: 9px 20px; border-radius: 7px; cursor: pointer;
+    border: none; font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s; text-decoration: none;
+  }
+
+  .nav-cta:hover { background: var(--accent-bright); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Radial glow behind hero */
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 30%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(167,139,250,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent-dim); border: 1px solid var(--border2);
+    color: var(--accent); font-size: 12px; font-weight: 500;
+    padding: 6px 16px; border-radius: 20px;
+    margin-bottom: 28px; letter-spacing: 0.3px;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(38px, 6vw, 72px);
+    line-height: 1.1;
+    color: #fff;
+    max-width: 820px;
+    margin-bottom: 24px;
+    letter-spacing: -1px;
+    animation: fadeUp 0.5s 0.1s ease forwards; opacity: 0;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 19px);
+    color: var(--muted);
+    max-width: 580px;
+    line-height: 1.65;
+    margin-bottom: 40px;
+    font-weight: 300;
+    animation: fadeUp 0.5s 0.2s ease forwards; opacity: 0;
+  }
+
+  .hero-ctas {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 60px;
+    animation: fadeUp 0.5s 0.3s ease forwards; opacity: 0;
+  }
+
+  .btn-primary {
+    background: var(--accent); color: #0c0b10;
+    font-family: 'DM Sans', sans-serif; font-weight: 600;
+    font-size: 15px; padding: 14px 32px;
+    border-radius: 8px; border: none; cursor: pointer;
+    transition: all 0.15s; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+
+  .btn-primary:hover { background: var(--accent-bright); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(167,139,250,0.3); }
+
+  .btn-secondary {
+    background: transparent; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-weight: 500;
+    font-size: 15px; padding: 14px 28px;
+    border-radius: 8px; border: 1px solid var(--border2); cursor: pointer;
+    transition: all 0.15s; text-decoration: none;
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hero-proof {
+    font-size: 12px; color: var(--muted);
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.5s 0.4s ease forwards; opacity: 0;
+  }
+
+  .proof-item { display: flex; align-items: center; gap: 6px; }
+  .proof-check { color: var(--green); font-size: 13px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 40px 24px;
+  }
+
+  .stat-strip-inner {
+    max-width: 900px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 0;
+  }
+
+  .strip-stat {
+    text-align: center;
+    padding: 0 20px;
+    border-right: 1px solid var(--border);
+  }
+
+  .strip-stat:last-child { border-right: none; }
+
+  .strip-number {
+    font-family: 'Instrument Serif', serif;
+    font-size: 38px; color: var(--accent);
+    display: block; line-height: 1; margin-bottom: 6px;
+  }
+
+  .strip-label { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  /* ── PROBLEM ── */
+  .section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+
+  .section-tag {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--accent); margin-bottom: 16px; display: block;
+  }
+
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 4vw, 46px);
+    line-height: 1.15; color: #fff;
+    letter-spacing: -0.5px; margin-bottom: 20px;
+    max-width: 680px;
+  }
+
+  .section-sub {
+    font-size: 17px; color: var(--muted);
+    line-height: 1.65; max-width: 580px;
+    margin-bottom: 48px; font-weight: 300;
+  }
+
+  .problem-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
+  }
+
+  .problem-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px;
+    transition: all 0.2s;
+  }
+
+  .problem-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .problem-icon { font-size: 24px; margin-bottom: 14px; display: block; }
+
+  .problem-title {
+    font-size: 15px; font-weight: 600; color: #fff;
+    margin-bottom: 8px; line-height: 1.3;
+  }
+
+  .problem-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ── HOW IT WORKS ── */
+  .how-section {
+    padding: 100px 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .how-inner { max-width: 1100px; margin: 0 auto; }
+
+  .steps-grid {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 0;
+    margin-top: 56px; position: relative;
+  }
+
+  /* Connecting line */
+  .steps-grid::before {
+    content: '';
+    position: absolute; top: 28px; left: 12.5%; right: 12.5%;
+    height: 1px; background: linear-gradient(90deg, var(--accent), var(--border), var(--accent));
+    opacity: 0.4;
+  }
+
+  .step {
+    text-align: center; padding: 0 20px;
+    position: relative;
+  }
+
+  .step-number {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent-dim); border: 1px solid var(--border2);
+    color: var(--accent); font-family: 'Instrument Serif', serif;
+    font-size: 20px; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px; position: relative; z-index: 1;
+  }
+
+  .step-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 10px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 16px;
+  }
+
+  .feature-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 28px; transition: all 0.2s;
+    position: relative; overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+
+  .feature-card:hover { border-color: var(--border2); }
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--accent-dim); border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 16px;
+  }
+
+  .feature-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+  .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+  .feature-tag {
+    display: inline-block; margin-top: 14px;
+    font-size: 11px; padding: 3px 10px;
+    background: var(--accent-dim); color: var(--accent);
+    border: 1px solid var(--border2); border-radius: 20px;
+  }
+
+  /* ── WHO IT'S FOR ── */
+  .audience-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 100px 24px;
+  }
+
+  .audience-inner { max-width: 1100px; margin: 0 auto; }
+
+  .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 56px; }
+
+  .audience-card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 36px; position: relative; overflow: hidden;
+  }
+
+  .audience-card.featured {
+    border-color: var(--border2);
+    background: var(--accent-deep);
+  }
+
+  .audience-card.featured::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-bright), transparent);
+  }
+
+  .audience-for { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px; }
+  .audience-title { font-family: 'Instrument Serif', serif; font-size: 24px; color: #fff; margin-bottom: 14px; line-height: 1.2; }
+  .audience-desc { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 24px; }
+
+  .audience-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .audience-list li {
+    font-size: 13px; color: var(--text);
+    display: flex; align-items: flex-start; gap: 10px; line-height: 1.5;
+  }
+
+  .audience-list li::before { content: '✦'; color: var(--accent); font-size: 10px; margin-top: 3px; flex-shrink: 0; }
+
+  /* ── PRICING ── */
+  .pricing-section { padding: 100px 24px; max-width: 900px; margin: 0 auto; text-align: center; }
+
+  .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 56px; text-align: left; }
+
+  .pricing-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 30px; position: relative; overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .pricing-card.featured {
+    border-color: var(--border2);
+    background: var(--accent-deep);
+  }
+
+  .pricing-card.featured::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+  }
+
+  .pricing-popular {
+    position: absolute; top: 16px; right: 16px;
+    font-size: 10px; padding: 3px 10px;
+    background: var(--accent); color: #0c0b10;
+    border-radius: 20px; font-weight: 700;
+  }
+
+  .pricing-plan { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+
+  .pricing-price {
+    font-family: 'Instrument Serif', serif;
+    font-size: 44px; color: #fff; line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pricing-price span { font-size: 18px; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+  .pricing-per { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+
+  .pricing-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+
+  .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+
+  .pricing-features li {
+    font-size: 13px; color: var(--text);
+    display: flex; align-items: flex-start; gap: 8px; line-height: 1.4;
+  }
+
+  .pricing-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  .pricing-btn {
+    width: 100%; padding: 12px; border-radius: 7px; border: none;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.15s;
+  }
+
+  .pricing-btn.primary { background: var(--accent); color: #0c0b10; }
+  .pricing-btn.primary:hover { background: var(--accent-bright); }
+  .pricing-btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border2); }
+  .pricing-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .pricing-note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 8px; }
+
+  /* ── TESTIMONIAL ── */
+  .testimonial-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 80px 24px;
+    text-align: center;
+  }
+
+  .testimonial-inner { max-width: 720px; margin: 0 auto; }
+
+  .testimonial-quote {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(20px, 3vw, 28px);
+    font-style: italic; color: #fff;
+    line-height: 1.5; margin-bottom: 28px;
+  }
+
+  .testimonial-author { display: flex; align-items: center; justify-content: center; gap: 14px; }
+
+  .author-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--accent-dim); color: var(--accent);
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+
+  .author-name { font-size: 14px; font-weight: 600; color: #fff; }
+  .author-role { font-size: 12px; color: var(--muted); }
+
+  /* ── FAQ ── */
+  .faq-section { padding: 100px 24px; max-width: 720px; margin: 0 auto; }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border); padding: 20px 0; cursor: pointer;
+  }
+
+  .faq-question {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 15px; font-weight: 500; color: #fff;
+  }
+
+  .faq-toggle { color: var(--accent); font-size: 18px; transition: transform 0.2s; }
+  .faq-toggle.open { transform: rotate(45deg); }
+
+  .faq-answer {
+    font-size: 14px; color: var(--muted); line-height: 1.7;
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s;
+  }
+
+  .faq-answer.open { max-height: 200px; padding-top: 14px; }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    padding: 120px 24px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+
+  .final-cta::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(167,139,250,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .final-cta h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(32px, 5vw, 56px);
+    color: #fff; line-height: 1.15; letter-spacing: -0.5px;
+    margin-bottom: 20px; max-width: 640px; margin-left: auto; margin-right: auto;
+  }
+
+  .final-cta p {
+    font-size: 17px; color: var(--muted); margin-bottom: 36px;
+    max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--muted);
+  }
+
+  .footer-logo { font-family: 'Instrument Serif', serif; font-size: 16px; color: #fff; }
+  .footer-logo span { color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .stat-strip-inner { grid-template-columns: repeat(2,1fr); }
+    .strip-stat:nth-child(2) { border-right: none; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .steps-grid::before { display: none; }
+    .features-grid { grid-template-columns: 1fr; }
+    .audience-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Recap<span>HQ</span></div>
+  <div class="nav-links">
+    <a class="nav-link" href="#how">How it works</a>
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#pricing">Pricing</a>
+    <a class="nav-link" href="#faq">FAQ</a>
+  </div>
+  <a class="nav-cta" href="#pricing">Get Started</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="badge-dot"></div>
+    AI Meeting Intelligence
+  </div>
+
+  <h1>Every meeting.<br><em>Captured. Structured. Retrievable.</em></h1>
+
+  <p class="hero-sub">RecapHQ transforms every conversation your organisation holds into a permanent, searchable record of commitments, conclusions, and accountability. The meeting ends. The intelligence begins.</p>
+
+  <div class="hero-ctas">
+    <a class="btn-primary" href="#pricing">Start Your Free Trial →</a>
+    <a class="btn-secondary" href="#how">See How It Works</a>
+  </div>
+
+  <div class="hero-proof">
+    <div class="proof-item"><span class="proof-check">✓</span> No long-term contracts</div>
+    <div class="proof-item"><span class="proof-check">✓</span> Set up in under 30 minutes</div>
+    <div class="proof-item"><span class="proof-check">✓</span> Works with Zoom, Teams & Meet</div>
+    <div class="proof-item"><span class="proof-check">✓</span> Cancel anytime</div>
+  </div>
+</section>
+
+<!-- STAT STRIP -->
+<div class="stat-strip">
+  <div class="stat-strip-inner">
+    <div class="strip-stat">
+      <span class="strip-number">$37B</span>
+      <span class="strip-label">Lost to unproductive meetings in the US alone every year</span>
+    </div>
+    <div class="strip-stat">
+      <span class="strip-number">95%</span>
+      <span class="strip-label">Of meeting attendees lose focus and miss key parts of the meeting</span>
+    </div>
+    <div class="strip-stat">
+      <span class="strip-number">392hrs</span>
+      <span class="strip-label">The average employee spends in meetings every year</span>
+    </div>
+    <div class="strip-stat">
+      <span class="strip-number">67%</span>
+      <span class="strip-label">Of executives say most virtual meetings are failures</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="section">
+  <span class="section-tag">The Problem</span>
+  <h2 class="section-title">Your organisation is meeting constantly.<br>Almost none of it is being retained.</h2>
+  <p class="section-sub">Recording a meeting and capturing its value are two entirely different things. Most organisations do the former and assume it covers the latter. RecapHQ is the layer that closes that gap.</p>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <span class="problem-icon">📂</span>
+      <div class="problem-title">A growing archive of recordings no one revisits</div>
+      <div class="problem-desc">Folders of 90-minute recordings accumulate across your organisation. The substance of those conversations, the conclusions reached and the commitments made, remains completely inaccessible.</div>
+    </div>
+    <div class="problem-card">
+      <span class="problem-icon">🔁</span>
+      <div class="problem-title">Verbal commitments with no mechanism for follow-through</div>
+      <div class="problem-desc">Responsibilities are assigned in the room and evaporate the moment the call ends. Without a structured accountability layer, the gap between what was agreed and what gets done widens every week.</div>
+    </div>
+    <div class="problem-card">
+      <span class="problem-icon">🔍</span>
+      <div class="problem-title">Institutional knowledge locked inside individual memory</div>
+      <div class="problem-desc">Months of strategic discussions, supplier negotiations, and leadership conclusions exist only in the recollections of those who were present. That knowledge is fragile, inconsistent, and effectively invisible to the rest of the organisation.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section" id="how">
+  <div class="how-inner">
+    <span class="section-tag">How It Works</span>
+    <h2 class="section-title">From conversation to structured organisational intelligence in minutes.</h2>
+    <p class="section-sub">RecapHQ operates entirely in the background. No behavioural change required from your team. No new platforms to navigate. It integrates with how your organisation already works.</p>
+
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-title">Connect your calendar</div>
+        <div class="step-desc">Link Zoom, Teams, or Google Meet. RecapHQ joins and captures every meeting automatically, or selectively based on your preferences.</div>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-title">AI processes the conversation</div>
+        <div class="step-desc">The moment your meeting concludes, RecapHQ produces a structured briefing, extracts every commitment made, and identifies the individuals responsible for each.</div>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-title">Accountability is established automatically</div>
+        <div class="step-desc">Each responsible party receives a structured notification of their obligations. Overdue items are escalated to the appropriate level of management without any manual intervention.</div>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-title">Everything becomes permanently retrievable</div>
+        <div class="step-desc">Every conclusion, every commitment, every discussion is indexed and searchable across your entire meeting history. Organisational memory, finally externalised.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="section" id="features">
+  <span class="section-tag">What You Get</span>
+  <h2 class="section-title">A complete intelligence layer built around your organisation's conversations.</h2>
+  <p class="section-sub">RecapHQ does not simply transcribe. It structures, indexes, and surfaces the substance of every meeting your organisation holds, turning conversations into compounding organisational value.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">◈</div>
+      <div class="feature-title">Structured Meeting Briefings</div>
+      <div class="feature-desc">Every meeting produces a concise, readable briefing within minutes of concluding. Not a raw transcript — a coherent summary of what was discussed, what was concluded, and what was agreed. Readable in under two minutes. Delivered before the next meeting begins.</div>
+      <span class="feature-tag">Auto-generated</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✦</div>
+      <div class="feature-title">Commitment Tracking and Escalation</div>
+      <div class="feature-desc">Every obligation established in a meeting is assigned to the relevant individual, given a deadline, and tracked to completion. Automated notifications go out before the due date. Outstanding items are escalated to the appropriate manager. Accountability, systematised.</div>
+      <span class="feature-tag">With automatic escalation</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⊞</div>
+      <div class="feature-title">Permanent Searchable Archive</div>
+      <div class="feature-desc">Every conclusion reached across every meeting is indexed and retrievable in seconds. Search by topic, by person, by date, or by project. Years of organisational memory, made immediately accessible to anyone who needs it.</div>
+      <span class="feature-tag">Full archive included</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">◇</div>
+      <div class="feature-title">Organisational Pattern Recognition</div>
+      <div class="feature-desc">RecapHQ analyses conversations across meetings over time, identifying recurring themes and emerging concerns before they escalate. Leadership receives a structured view of what is consistently surfacing across the organisation, weeks before it becomes a formal problem.</div>
+      <span class="feature-tag">Unique to RecapHQ</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">◑</div>
+      <div class="feature-title">Individual Contribution Records</div>
+      <div class="feature-desc">A complete record of every meeting attended, every commitment made, and every conclusion reached by each individual in your organisation. Invaluable for performance reviews, management transitions, and onboarding senior hires who need rapid context.</div>
+      <span class="feature-tag">Per-person view</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⊙</div>
+      <div class="feature-title">Zero Disruption Integration</div>
+      <div class="feature-desc">RecapHQ connects to Zoom, Microsoft Teams, and Google Meet without requiring any change to how your team operates. No new platforms. No migration. No IT project. It sits on top of your existing infrastructure and begins delivering value from the first meeting.</div>
+      <span class="feature-tag">Plug and play</span>
+    </div>
+  </div>
+</div>
+
+<!-- WHO IT'S FOR -->
+<div class="audience-section">
+  <div class="audience-inner">
+    <span class="section-tag">Who It's For</span>
+    <h2 class="section-title">Built for the people who can't afford to let things slip.</h2>
+
+    <div class="audience-grid">
+      <div class="audience-card">
+        <div class="audience-for">For growing businesses</div>
+        <div class="audience-title">Scaling fast. Institutional knowledge struggling to keep pace.</div>
+        <div class="audience-desc">Growth introduces complexity that informal systems cannot absorb. Conclusions reached in one meeting fail to reach the people who need them. New hires lack the context to operate effectively. RecapHQ gives every growing organisation a structured memory that scales with it.</div>
+        <ul class="audience-list">
+          <li>Eliminate dependence on any single individual's recollection of what was agreed</li>
+          <li>Accelerate the integration of new hires without weeks of manual knowledge transfer</li>
+          <li>Ensure every obligation established in a meeting reaches a documented conclusion</li>
+          <li>Identify operational friction points before they compound into significant problems</li>
+        </ul>
+      </div>
+      <div class="audience-card featured">
+        <div class="audience-for">For executive teams</div>
+        <div class="audience-title">Senior leadership time is your organisation's most finite resource.</div>
+        <div class="audience-desc">Senior leaders spend an average of 23 hours per week in meetings. RecapHQ ensures that every one of those hours produces a structured, retrievable record that the organisation can act on. Every board session, every strategic review, every leadership discussion — permanently documented and instantly accessible.</div>
+        <ul class="audience-list">
+          <li>Board preparation, quarterly reviews, and strategy sessions fully structured and archived</li>
+          <li>Every conclusion logged with full context, attendees, and subsequent outcomes</li>
+          <li>Outstanding obligations escalated automatically without requiring manual oversight</li>
+          <li>Retrieve years of leadership discussions in seconds before any critical meeting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-section" id="pricing">
+  <span class="section-tag">Pricing</span>
+  <h2 class="section-title" style="max-width:100%; margin-bottom: 14px;">Simple, honest pricing.</h2>
+  <p style="font-size:16px; color:var(--muted); margin-bottom: 0;">Transparent, flat-rate pricing. One monthly fee covers your entire organisation regardless of headcount.</p>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pricing-plan">Starter</div>
+      <div class="pricing-price"><span style="font-size:28px;">£</span>799</div>
+      <div class="pricing-per">per month · billed monthly</div>
+      <div class="pricing-desc">For smaller organisations and founding teams who need structured meeting intelligence from day one.</div>
+      <ul class="pricing-features">
+        <li>Up to 20 meetings processed per month</li>
+        <li>Structured briefings and commitment tracking</li>
+        <li>Searchable conclusions archive</li>
+        <li>Zoom, Teams and Meet integration</li>
+        <li>Automated obligation reminders</li>
+        <li>3 months of retrievable history</li>
+      </ul>
+      <button class="pricing-btn secondary">Get Started</button>
+      <div class="pricing-note">14-day free trial included</div>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="pricing-popular">Most Popular</div>
+      <div class="pricing-plan">Pro</div>
+      <div class="pricing-price"><span style="font-size:28px;">£</span>1,499</div>
+      <div class="pricing-per">per month · billed monthly</div>
+      <div class="pricing-desc">For growing organisations that require comprehensive meeting intelligence and structured accountability across the entire business.</div>
+      <ul class="pricing-features">
+        <li>Unlimited meetings processed</li>
+        <li>Full briefings, commitment tracking and pattern recognition</li>
+        <li>Unrestricted searchable archive</li>
+        <li>Individual contribution records</li>
+        <li>Overdue obligation escalation</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="pricing-btn primary">Start Free Trial →</button>
+      <div class="pricing-note">14-day free trial · No card required</div>
+    </div>
+
+    <div class="pricing-card">
+      <div class="pricing-plan">Enterprise</div>
+      <div class="pricing-price" style="font-size:32px; padding-top: 6px;">From £2,500</div>
+      <div class="pricing-per">per month · custom pricing</div>
+      <div class="pricing-desc">For larger organisations with multiple teams, compliance requirements, or custom data needs.</div>
+      <ul class="pricing-features">
+        <li>Everything in Pro</li>
+        <li>Custom onboarding & setup</li>
+        <li>SSO & advanced security</li>
+        <li>Dedicated account manager</li>
+        <li>Custom integrations available</li>
+        <li>SLA guarantee</li>
+      </ul>
+      <button class="pricing-btn secondary">Book a Call</button>
+      <div class="pricing-note">Response within 24 hours</div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIAL -->
+<div class="testimonial-section">
+  <div class="testimonial-inner">
+    <div class="testimonial-quote">"Before RecapHQ, I would leave a two-hour board meeting and within 48 hours half of what had been agreed was already drifting. Now every conclusion is documented, every obligation is tracked, and nothing requires chasing. It has fundamentally changed how we operate as a leadership team."</div>
+    <div class="testimonial-author">
+      <div class="author-avatar">ST</div>
+      <div>
+        <div class="author-name">Sarah Thornton</div>
+        <div class="author-role">COO, Meridian Care Group</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section" id="faq">
+  <span class="section-tag" style="display:block; text-align:center; margin-bottom:40px;">Frequently Asked Questions</span>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Does my team need to install anything?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">No. RecapHQ connects directly to your existing Zoom, Teams, or Google Meet environment. Your team continues operating exactly as before. RecapHQ works in the background without requiring any change to established workflows.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Is our meeting data secure?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">All data is encrypted in transit and at rest. Your meeting content is never shared with or sold to third parties. It belongs exclusively to your organisation.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">How long does setup take?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Most organisations are fully configured and processing their first meeting within 30 minutes. The entire onboarding process takes place remotely via a single Zoom call at no additional cost.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Can I choose which meetings get recorded?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Entirely. You retain full control over which meetings RecapHQ processes. Rules can be configured by meeting type, attendee list, or calendar category, or each meeting can be approved individually.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">What if I want to cancel?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">You may cancel at any time with no penalty. Your full archive remains accessible for 30 days following cancellation, giving you sufficient time to export anything your organisation needs.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Does it work for in-person meetings too?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Yes. Any audio file or transcript from an in-person meeting can be uploaded and processed through RecapHQ in exactly the same way, producing a full structured briefing, commitment log, and archived record.</div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="final-cta">
+  <h2>Your organisation is meeting. It should also be learning.</h2>
+  <p>Every conversation your team has contains conclusions worth retaining, obligations worth tracking, and patterns worth understanding. RecapHQ ensures none of that disappears when the call ends.</p>
+  <a class="btn-primary" href="#pricing" style="font-size:16px; padding:16px 36px;">Start Your Free Trial →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Recap<span>HQ</span></div>
+  <div>GetRecapHQ.com · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="85ede0e9e9eac5e2e0f1f7e0e6e4f5edf4abe6eae8">[email&#160;protected]</a></div>
+  <div>© 2026 RecapHQ. All rights reserved.</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><s

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecapHQ vs The Rest</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b10;
+    --surface: #141220;
+    --surface2: #1a1728;
+    --border: #241f35;
+    --border2: #2e2845;
+    --accent: #a78bfa;
+    --accent-bright: #c4b5fd;
+    --accent-dim: #1e1730;
+    --green: #34d399;
+    --green-dim: #0d3d2a;
+    --red: #f87171;
+    --red-dim: #3d1515;
+    --text: #e8e4f0;
+    --muted: #6b6480;
+    --muted2: #4a4460;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 48px 24px;
+  }
+
+  .page { max-width: 1100px; margin: 0 auto; }
+
+  /* Header */
+  .page-header { text-align: center; margin-bottom: 56px; }
+
+  .logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px; color: #fff; margin-bottom: 24px;
+    display: inline-block;
+  }
+  .logo span { color: var(--accent); }
+
+  .page-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    color: #fff; line-height: 1.15;
+    letter-spacing: -0.5px; margin-bottom: 14px;
+  }
+
+  .page-title em { font-style: italic; color: var(--accent); }
+
+  .page-sub {
+    font-size: 16px; color: var(--muted);
+    max-width: 560px; margin: 0 auto;
+    line-height: 1.65; font-weight: 300;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex; justify-content: center; gap: 28px;
+    margin-bottom: 40px; flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+
+  .legend-dot.them { background: var(--red); }
+  .legend-dot.us { background: var(--green); }
+  .legend-dot.partial { background: #f59e0b; }
+
+  /* Main comparison table */
+  .comparison-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  /* Sticky column headers */
+  .col-headers {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 1fr;
+    border-bottom: 2px solid var(--border2);
+    position: sticky; top: 0; z-index: 10;
+    background: var(--surface);
+  }
+
+  .col-header {
+    padding: 20px 22px;
+    border-right: 1px solid var(--border);
+  }
+
+  .col-header:last-child { border-right: none; }
+
+  .col-header-label {
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .col-header-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px; color: #fff;
+  }
+
+  .col-header.them .col-header-name { color: #ccc; }
+
+  .col-header.us {
+    background: var(--accent-dim);
+    border-left: 2px solid var(--accent);
+  }
+
+  .col-header.us .col-header-name { color: var(--accent-bright); }
+
+  .col-header-sub {
+    font-size: 11px; color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* Section rows */
+  .section-label {
+    grid-column: 1 / -1;
+    padding: 12px 22px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--accent);
+    font-weight: 600;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: rgba(167,139,250,0.03); }
+
+  .cell {
+    padding: 18px 22px;
+    border-right: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+
+  .cell:last-child { border-right: none; }
+
+  .cell.us-col {
+    background: rgba(167,139,250,0.04);
+    border-left: 2px solid rgba(167,139,250,0.2);
+  }
+
+  .feature-name {
+    font-size: 14px; font-weight: 500;
+    color: #fff; margin-bottom: 4px; line-height: 1.3;
+  }
+
+  .feature-desc {
+    font-size: 12px; color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .status-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0; margin-top: 1px;
+    font-weight: 700;
+  }
+
+  .icon-yes { background: var(--green-dim); color: var(--green); }
+  .icon-no { background: var(--red-dim); color: var(--red); }
+  .icon-partial { background: #3d2e0a; color: #f59e0b; }
+
+  .cell-content {}
+
+  .cell-title {
+    font-size: 13px; font-weight: 500;
+    color: var(--text); margin-bottom: 3px; line-height: 1.3;
+  }
+
+  .cell-title.positive { color: var(--green); }
+  .cell-title.negative { color: var(--red); }
+  .cell-title.partial { color: #f59e0b; }
+
+  .cell-detail {
+    font-size: 12px; color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Summary cards */
+  .summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 40px;
+  }
+
+  .summary-card {
+    border-radius: 10px; padding: 28px;
+    border: 1px solid var(--border);
+  }
+
+  .summary-card.them {
+    background: var(--surface);
+  }
+
+  .summary-card.us {
+    background: var(--accent-dim);
+    border-color: var(--border2);
+    position: relative; overflow: hidden;
+  }
+
+  .summary-card.us::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-bright), transparent);
+  }
+
+  .summary-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px; color: #fff; margin-bottom: 6px;
+  }
+
+  .summary-sub {
+    font-size: 12px; color: var(--muted);
+    margin-bottom: 20px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .summary-list {
+    list-style: none; display: flex;
+    flex-direction: column; gap: 10px;
+  }
+
+  .summary-list li {
+    font-size: 13px; color: var(--text);
+    display: flex; align-items: flex-start;
+    gap: 10px; line-height: 1.5;
+  }
+
+  .summary-list li .bullet {
+    font-size: 10px; margin-top: 4px; flex-shrink: 0;
+  }
+
+  .bullet.neg { color: var(--red); }
+  .bullet.pos { color: var(--green); }
+
+  /* Bottom CTA */
+  .bottom-cta {
+    text-align: center;
+    padding: 48px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative; overflow: hidden;
+  }
+
+  .bottom-cta::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(ellipse, rgba(167,139,250,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .bottom-cta h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px; color: #fff;
+    margin-bottom: 10px; letter-spacing: -0.3px;
+  }
+
+  .bottom-cta p {
+    font-size: 15px; color: var(--muted);
+    margin-bottom: 24px; max-width: 480px;
+    margin-left: auto; margin-right: auto;
+    line-height: 1.6;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    background: var(--accent); color: #0c0b10;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 15px;
+    padding: 13px 32px; border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .cta-btn:hover {
+    background: var(--accent-bright);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(167,139,250,0.3);
+  }
+
+  /* Animations */
+  .row { animation: fadeIn 0.3s ease both; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 700px) {
+    .col-headers { grid-template-columns: 1fr 1fr; }
+    .col-header:first-child { display: none; }
+    .row { grid-template-columns: 1fr 1fr; }
+    .cell:first-child { display: none; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="logo">Recap<span>HQ</span></div>
+    <h1 class="page-title">What you get with them.<br><em>What you get with us.</em></h1>
+    <p class="page-sub">The reality using these tools versus the RecapHQ Experience.</p>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot them"></div> Don't Do</div>
+    <div class="legend-item"><div class="legend-dot partial"></div> Partially Do</div>
+    <div class="legend-item"><div class="legend-dot us"></div> Do</div>
+  </div>
+
+  <!-- Comparison table -->
+  <div class="comparison-wrap">
+
+    <!-- Column headers -->
+    <div class="col-headers">
+      <div class="col-header">
+        <div class="col-header-label">What we're comparing</div>
+        <div class="col-header-name">The Feature</div>
+        <div class="col-header-sub">What it means for your business</div>
+      </div>
+      <div class="col-header them">
+        <div class="col-header-label">Fathom, Otter, Fireflies, tl;dv</div>
+        <div class="col-header-name">Other Tools</div>
+        <div class="col-header-sub">Self-serve apps, priced per person</div>
+      </div>
+      <div class="col-header us">
+        <div class="col-header-label">Managed service</div>
+        <div class="col-header-name">RecapHQ</div>
+        <div class="col-header-sub">Set up for you, runs itself</div>
+      </div>
+    </div>
+
+    <!-- SECTION: GETTING STARTED -->
+    <div class="section-label">Getting Started</div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Setup and onboarding</div>
+          <div class="feature-desc">Who gets you up and running and makes sure it works properly for your team</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-partial">~</div>
+        <div class="cell-content">
+          <div class="cell-title partial">You do it yourself</div>
+          <div class="cell-detail">You download the app, read the docs, and figure it out. Some have help articles. Nobody holds your hand.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">We set everything up for you</div>
+          <div class="cell-detail">We connect your Zoom or Teams, configure your settings, and make sure your first meeting is processed perfectly. Done remotely. You never have to leave your desk.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Training your team</div>
+          <div class="feature-desc">Getting everyone in the company using the tool properly</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-no">✕</div>
+        <div class="cell-content">
+          <div class="cell-title negative">No training provided</div>
+          <div class="cell-detail">You buy the licences, you train the team. Most companies realise that 50% of staff never use the tool.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">One remote Zoom call. That is it.</div>
+          <div class="cell-detail">A single 30-minute Zoom session with the key people. No travel, no site visits, no follow-up sessions. Everyone knows what they are looking at and why it matters. Then the system runs itself.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: DURING MEETINGS -->
+    <div class="section-label">During & After Meetings</div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Recording and transcription</div>
+          <div class="feature-desc">Capturing what was said — this is the one thing every tool in this space does well</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Yes, across Zoom, Teams and Meet</div>
+          <div class="cell-detail">Recording and transcription is the baseline. Every tool in this space does it and does it well. This is where the similarity ends.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Yes, across Zoom, Teams and Meet</div>
+          <div class="cell-detail">RecapHQ records and transcribes every meeting automatically. But unlike every other tool, that is just the starting point.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Plain English summary</div>
+          <div class="feature-desc">A short readable version of what happened in the meeting that anyone can understand in two minutes</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-partial">~</div>
+        <div class="cell-content">
+          <div class="cell-title partial">Sort of, but it is generic</div>
+          <div class="cell-detail">They generate a summary, but it reads like a robot wrote it. Bullet points, vague language, no sense of your company's context.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Clean, readable, in your language</div>
+          <div class="cell-detail">Configured to understand your company, your terminology, and your industry. The summary reads like a person who was in the room wrote it.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Action items with owners</div>
+          <div class="feature-desc">Knowing who said they would do what, and by when</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-partial">~</div>
+        <div class="cell-content">
+          <div class="cell-title partial">They detect some of them</div>
+          <div class="cell-detail">They pull out obvious action items but miss the subtle ones. "I'll look into that" rarely gets captured. Nobody gets chased up automatically.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Every commitment captured and tracked</div>
+          <div class="cell-detail">Every action item is assigned to the right person with a due date. Automated reminders go out before the deadline. Overdue items get flagged to the right manager.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Automatic follow-up reminders</div>
+          <div class="feature-desc">Chasing people to do what they said they would do</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-no">✕</div>
+        <div class="cell-content">
+          <div class="cell-title negative">No. You still have to chase people.</div>
+          <div class="cell-detail">The tool captures the action item. What happens next is still your problem. You still send the emails. You still have the awkward conversations.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Automated. Nobody falls through the cracks.</div>
+          <div class="cell-detail">The system reminds the right person before the deadline and flags it to leadership if it is overdue. You stop being the chaser.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: INTELLIGENCE -->
+    <div class="section-label">Intelligence and Insight</div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Searchable decision archive</div>
+          <div class="feature-desc">Being able to find what your company decided about anything, at any point in the past, in seconds</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-partial">~</div>
+        <div class="cell-content">
+          <div class="cell-title partial">You can search transcripts</div>
+          <div class="cell-detail">You can search the raw text of meetings but you are searching through walls of words. It is like searching a filing cabinet with no labels.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Search decisions, not just words</div>
+          <div class="cell-detail">Ask "what did we decide about the NHS contract?" and get a direct answer with context, date, and who was in the room. Not a list of transcripts to dig through.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Spotting recurring problems</div>
+          <div class="feature-desc">Knowing when the same issue keeps coming up in meetings before it becomes a crisis</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-no">✕</div>
+        <div class="cell-content">
+          <div class="cell-title negative">They do not do this at all</div>
+          <div class="cell-detail">Every meeting is treated as a separate event. Nobody is watching for patterns across meetings over time. The problems stay invisible until they explode.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Patterns flagged automatically</div>
+          <div class="cell-detail">RecapHQ watches across all your meetings and surfaces recurring issues. "Staff retention has come up in 4 of your last 6 meetings" is the kind of insight that helps you act before it becomes expensive.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Understanding your company's context</div>
+          <div class="feature-desc">The tool knowing who your people are, what your business does, and what your terminology means</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-no">✕</div>
+        <div class="cell-content">
+          <div class="cell-title negative">Zero context about your business</div>
+          <div class="cell-detail">These tools know nothing about you. Every summary is generic. They do not know what a "DME contract" is, who your key clients are, or what your priorities are this quarter.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Configured around your company</div>
+          <div class="cell-detail">We set up RecapHQ to understand your people, your terminology, your clients, and your priorities. The output feels like it was written by someone on the inside.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: ONGOING -->
+    <div class="section-label">Ongoing Support and Value</div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Someone to call when it goes wrong</div>
+          <div class="feature-desc">Having a real human being responsible for making sure the system works</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-no">✕</div>
+        <div class="cell-content">
+          <div class="cell-title negative">A support ticket and a chatbot</div>
+          <div class="cell-detail">You raise a support ticket, wait 48 hours, and get a generic response. Nobody is accountable for whether the tool is working for your business.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">A real person who knows your setup</div>
+          <div class="cell-detail">You have direct access to the person who set up your system. If something is not right, it gets fixed. No tickets. No waiting. No explaining the problem from scratch every time.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Improving over time</div>
+          <div class="feature-desc">The system getting smarter and more useful the longer you use it</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-no">✕</div>
+        <div class="cell-content">
+          <div class="cell-title negative">It stays the same as day one</div>
+          <div class="cell-detail">The software does not learn your business. Month six looks exactly like month one. You get the same generic output forever.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">Gets smarter the longer you use it</div>
+          <div class="cell-detail">RecapHQ builds a deeper picture of your company over time. The summaries get sharper. The patterns get more meaningful. The value compounds month after month.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="cell">
+        <div>
+          <div class="feature-name">Pricing that makes sense for a team</div>
+          <div class="feature-desc">What you pay once your whole company is using it</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="status-icon icon-no">✕</div>
+        <div class="cell-content">
+          <div class="cell-title negative">Charged per person, per month</div>
+          <div class="cell-detail">A 100-person company on Fireflies Pro pays £1,000/month. On Otter Business they pay £4,000/month. And they still have to set it up and manage it themselves.</div>
+        </div>
+      </div>
+      <div class="cell us-col">
+        <div class="status-icon icon-yes">✓</div>
+        <div class="cell-content">
+          <div class="cell-title positive">One flat monthly fee. No per-seat surprises.</div>
+          <div class="cell-detail">One price covers your whole company regardless of headcount. Setup included. Support included. The price does not go up every time you hire someone new.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-grid">
+    <div class="summary-card them">
+      <div class="summary-title">What you get with other tools</div>
+      <div class="summary-sub">Fathom, Otter, Fireflies, tl;dv and similar</div>
+      <ul class="summary-list">
+        <li><span class="bullet neg">✕</span> You download it, you set it up, you train your team</li>
+        <li><span class="bullet neg">✕</span> Generic summaries that do not know your business</li>
+        <li><span class="bullet neg">✕</span> Action items captured but nobody is chased up</li>
+        <li><span class="bullet neg">✕</span> No one watching for patterns across meetings</li>
+        <li><span class="bullet neg">✕</span> Charged per person so costs grow as you hire</li>
+        <li><span class="bullet neg">✕</span> Support ticket and a wait when something breaks</li>
+        <li><span class="bullet neg">✕</span> Looks the same on day one as it does in year two</li>
+      </ul>
+    </div>
+    <div class="summary-card us">
+      <div class="summary-title">What you get with RecapHQ</div>
+      <div class="summary-sub">Managed service. Set up once. Runs itself.</div>
+      <ul class="summary-list">
+        <li><span class="bullet pos">✓</span> We set everything up and onboard your team for you</li>
+        <li><span class="bullet pos">✓</span> Summaries and insights configured around your company</li>
+        <li><span class="bullet pos">✓</span> Every commitment tracked and automatically followed up</li>
+        <li><span class="bullet pos">✓</span> Patterns spotted across meetings before they become problems</li>
+        <li><span class="bullet pos">✓</span> One flat fee for the whole company, no surprises</li>
+        <li><span class="bullet pos">✓</span> A real person accountable for making it work</li>
+        <li><span class="bullet pos">✓</span> Gets smarter and more valuable every month</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="bottom-cta">
+    <h2>Ready to see RecapHQ in action?</h2>
+    <p>Book a free 30-minute demo and we will show you exactly what your meetings could look like with RecapHQ running in the background.</p>
+    <a class="cta-btn" href="#">Book a Free Demo</a>
+  </div>
+
+</div>
+</body>
+</html>

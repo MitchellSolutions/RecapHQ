@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecapHQ — Purple Theme</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b10;
+    --sidebar: #100e17;
+    --surface: #141220;
+    --surface2: #1a1728;
+    --border: #241f35;
+    --border2: #2e2845;
+    --accent: #a78bfa;
+    --accent-dim: #7c5dc7;
+    --accent-glow: rgba(167,139,250,0.12);
+    --accent-deep: #1e1730;
+    --green: #34d399;
+    --green-dim: #0d3d2a;
+    --amber: #fbbf24;
+    --amber-dim: #3d2e0a;
+    --red: #f87171;
+    --red-dim: #3d1515;
+    --blue: #60a5fa;
+    --blue-dim: #0d2040;
+    --text: #e8e4f0;
+    --muted: #6b6480;
+    --muted2: #4a4460;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* Subtle noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  .sidebar {
+    width: 256px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 26px 22px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-text {
+    font-family: 'Instrument Serif', serif;
+    font-size: 22px;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--accent); }
+  .logo-sub { font-size: 11px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+
+  .sidebar-client {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .client-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; }
+  .client-name { font-size: 14px; color: #fff; font-weight: 500; }
+  .client-plan {
+    display: inline-block; font-size: 10px; padding: 2px 10px;
+    background: var(--accent-deep); color: var(--accent);
+    border: 1px solid #3d2f6e; border-radius: 20px; margin-top: 6px;
+  }
+
+  .sidebar-nav { padding: 16px 10px; flex: 1; }
+
+  .nav-section-label {
+    font-size: 10px; color: var(--muted2); text-transform: uppercase;
+    letter-spacing: 1.5px; padding: 0 12px; margin-bottom: 6px; margin-top: 14px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+    border-radius: 7px; cursor: pointer; transition: all 0.15s;
+    font-size: 13px; color: var(--muted); margin-bottom: 1px;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: #ccc; }
+
+  .nav-item.active {
+    background: var(--accent-deep);
+    color: var(--accent);
+    border: 1px solid #3d2f6e;
+  }
+
+  .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto; font-size: 10px; padding: 1px 7px;
+    border-radius: 20px; font-weight: 600;
+    background: var(--red-dim); color: var(--red);
+  }
+
+  .nav-badge.green { background: var(--green-dim); color: var(--green); }
+
+  .sidebar-bottom { padding: 14px 10px; border-top: 1px solid var(--border); }
+  .powered-by { font-size: 10px; color: var(--muted2); text-align: center; padding: 6px; }
+  .powered-by span { color: var(--accent-dim); }
+
+  .main { margin-left: 256px; flex: 1; display: flex; flex-direction: column; }
+
+  .topbar {
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--border);
+    padding: 0 30px; height: 62px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+
+  .page-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px; color: var(--text); letter-spacing: -0.3px;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 7px; padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--muted); width: 210px; cursor: text;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar:hover { border-color: var(--border2); }
+
+  .notif-btn {
+    width: 34px; height: 34px; border-radius: 7px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; position: relative;
+  }
+
+  .notif-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 6px; height: 6px;
+    background: var(--red); border-radius: 50%;
+    border: 1.5px solid var(--sidebar);
+  }
+
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent-deep); color: var(--accent);
+    border: 1px solid #3d2f6e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+
+  .content { padding: 28px 30px; flex: 1; }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px;
+    transition: all 0.2s; position: relative; overflow: hidden;
+    animation: fadeUp 0.3s ease forwards; opacity: 0;
+  }
+
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .stat-card:hover::before { opacity: 1; }
+
+  .stat-card:nth-child(1) { animation-delay: 0s; }
+  .stat-card:nth-child(2) { animation-delay: 0.06s; }
+  .stat-card:nth-child(3) { animation-delay: 0.12s; }
+  .stat-card:nth-child(4) { animation-delay: 0.18s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(8px); }
+  }
+
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .stat-value { font-family: 'Instrument Serif', serif; font-size: 30px; color: #fff; line-height: 1; margin-bottom: 6px; }
+  .stat-change { font-size: 12px; color: var(--green); }
+  .stat-change.down { color: var(--red); }
+
+  .alert-banner {
+    background: var(--amber-dim); border: 1px solid #5c440f;
+    border-radius: 8px; padding: 11px 16px;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px; font-size: 13px; color: var(--amber);
+  }
+
+  .tabs {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 10px 18px; font-size: 13px; color: var(--muted);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: all 0.15s; font-weight: 500;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 360px; gap: 16px; margin-bottom: 16px; }
+
+  .section-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+
+  .section-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .section-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .section-meta { font-size: 12px; color: var(--muted); }
+  .view-all { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
+
+  .meeting-item {
+    padding: 14px 20px; display: flex; align-items: flex-start; gap: 12px;
+    cursor: pointer; transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .meeting-item:last-child { border-bottom: none; }
+  .meeting-item:hover { background: var(--surface2); }
+
+  .meeting-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .meeting-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .meeting-dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .meeting-dot.blue { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+  .meeting-dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .meeting-dot.purple { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+  .meeting-info { flex: 1; }
+  .meeting-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .meeting-meta { font-size: 11px; color: var(--muted); display: flex; gap: 12px; }
+  .meeting-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .meeting-time { font-size: 11px; color: var(--muted); }
+
+  .meeting-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+  .badge-purple { background: var(--accent-deep); color: var(--accent); }
+
+  .action-item {
+    padding: 13px 20px; display: flex; align-items: flex-start; gap: 12px;
+    border-bottom: 1px solid var(--border); transition: background 0.15s; cursor: pointer;
+  }
+
+  .action-item:last-child { border-bottom: none; }
+  .action-item:hover { background: var(--surface2); }
+
+  .action-check {
+    width: 16px; height: 16px; border: 1.5px solid var(--border2);
+    border-radius: 4px; margin-top: 1px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; cursor: pointer;
+  }
+
+  .action-check:hover { border-color: var(--accent); background: var(--accent-deep); }
+  .action-check.done { background: var(--accent); border-color: var(--accent); color: white; font-size: 10px; }
+
+  .action-info { flex: 1; }
+  .action-text { font-size: 13px; color: var(--text); margin-bottom: 4px; line-height: 1.4; }
+  .action-text.done-text { text-decoration: line-through; color: var(--muted); }
+  .action-meta { font-size: 11px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  .owner-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent-deep); color: var(--accent);
+    font-size: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600;
+  }
+
+  .pain-panel { padding: 14px 20px; }
+
+  .pain-item { display: flex; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+  .pain-item:last-child { border-bottom: none; }
+
+  .pain-icon {
+    width: 30px; height: 30px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+
+  .pain-icon.red { background: var(--red-dim); }
+  .pain-icon.amber { background: var(--amber-dim); }
+  .pain-icon.blue { background: var(--blue-dim); }
+
+  .pain-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .pain-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .pain-source { font-size: 10px; color: var(--muted2); margin-top: 4px; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 200; display: flex; align-items: center; justify-content: center;
+    padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 12px; width: 100%; max-width: 660px;
+    max-height: 85vh; overflow-y: auto;
+    transform: translateY(12px); transition: transform 0.2s;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-header {
+    padding: 22px 26px 18px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: flex-start;
+    position: sticky; top: 0; background: var(--surface); z-index: 1;
+  }
+
+  .modal-title { font-family: 'Instrument Serif', serif; font-size: 20px; margin-bottom: 5px; color: #fff; }
+  .modal-meta { font-size: 12px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--muted); flex-shrink: 0;
+  }
+
+  .modal-body { padding: 22px 26px; }
+  .modal-section { margin-bottom: 22px; }
+
+  .modal-section-title {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .summary-text { font-size: 13px; line-height: 1.75; color: #bbb; }
+
+  .decision-item {
+    display: flex; gap: 10px; padding: 8px 0;
+    font-size: 13px; color: var(--text);
+    border-bottom: 1px solid var(--border); line-height: 1.5;
+  }
+
+  .decision-item:last-child { border-bottom: none; }
+  .decision-item::before { content: '✓'; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+  .attendee-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .attendee-chip {
+    display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; font-size: 12px; color: var(--text);
+  }
+
+  .chip-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent-deep); color: var(--accent);
+    font-size: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700;
+  }
+
+  .upcoming-card {
+    padding: 13px 14px; background: var(--surface2);
+    border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px;
+  }
+
+  .upcoming-card:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Recap<span>HQ</span></div>
+    <div class="logo-sub">Meeting Intelligence</div>
+  </div>
+  <div class="sidebar-client">
+    <div class="client-label">Workspace</div>
+    <div class="client-name">Meridian Care Group</div>
+    <span class="client-plan">Pro Plan</span>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" onclick="setNav(this)"><span class="nav-icon">◈</span> Dashboard</div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">◎</span> All Meetings <span class="nav-badge green">24</span></div>
+    <div class="nav-section-label">Intelligence</div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">✦</span> Action Items <span class="nav-badge">3</span></div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">◇</span> Pain Points</div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">⊕</span> Decisions Log</div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">↻</span> Follow-ups <span class="nav-badge">3</span></div>
+    <div class="nav-section-label">Search & Archive</div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">⊞</span> Search Meetings</div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">◑</span> People</div>
+    <div class="nav-section-label">Settings</div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">⊙</span> Integrations</div>
+    <div class="nav-item" onclick="setNav(this)"><span class="nav-icon">◻</span> Settings</div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="powered-by">Powered by <span>GetRecapHQ.com</span></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="page-title">Good morning, Sarah ✦</div>
+    <div class="topbar-right">
+      <div class="search-bar">⊞ &nbsp;Search meetings & decisions...</div>
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+      <div class="avatar">SC</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="alert-banner">⚠️ <strong>3 overdue action items</strong> — from your Operations Review on 24 Feb. Tap to review.</div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Meetings This Month</div>
+        <div class="stat-value">24</div>
+        <div class="stat-change">↑ 4 more than last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Action Items Open</div>
+        <div class="stat-value">11</div>
+        <div class="stat-change down">↑ 3 overdue</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Decisions Logged</div>
+        <div class="stat-value">38</div>
+        <div class="stat-change">↑ All searchable</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hours Saved</div>
+        <div class="stat-value">14h</div>
+        <div class="stat-change">↑ vs manual notes</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('meetings',this)">Recent Meetings</div>
+      <div class="tab" onclick="switchTab('actions',this)">Action Items</div>
+      <div class="tab" onclick="switchTab('pain',this)">Detected Pain Points</div>
+    </div>
+
+    <!-- Meetings -->
+    <div class="tab-content active" id="tab-meetings">
+      <div class="two-col">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Recent Meetings</div>
+            <a class="view-all">View all 24 →</a>
+          </div>
+          <div class="meeting-item" onclick="openModal('ops')">
+            <div class="meeting-dot red"></div>
+            <div class="meeting-info">
+              <div class="meeting-name">Operations Review — Q1 Planning</div>
+              <div class="meeting-meta"><span>👥 6 attendees</span><span>⏱ 67 mins</span><span>📍 Zoom</span></div>
+            </div>
+            <div class="meeting-right"><div class="meeting-time">24 Feb</div><div class="meeting-badge badge-red">3 Overdue</div></div>
+          </div>
+          <div class="meeting-item" onclick="openModal('exec')">
+            <div class="meeting-dot green"></div>
+            <div class="meeting-info">
+              <div class="meeting-name">Executive Weekly Standup</div>
+              <div class="meeting-meta"><span>👥 4 attendees</span><span>⏱ 28 mins</span><span>📍 Teams</span></div>
+            </div>
+            <div class="meeting-right"><div class="meeting-time">27 Feb</div><div class="meeting-badge badge-green">Complete</div></div>
+          </div>
+          <div class="meeting-item" onclick="openModal('client')">
+            <div class="meeting-dot blue"></div>
+            <div class="meeting-info">
+              <div class="meeting-name">New Client Onboarding — Ashfield NHS</div>
+              <div class="meeting-meta"><span>👥 8 attendees</span><span>⏱ 54 mins</span><span>📍 In-person</span></div>
+            </div>
+            <div class="meeting-right"><div class="meeting-time">28 Feb</div><div class="meeting-badge badge-blue">2 Actions</div></div>
+          </div>
+          <div class="meeting-item" onclick="openModal('finance')">
+            <div class="meeting-dot amber"></div>
+            <div class="meeting-info">
+              <div class="meeting-name">Finance & Budget Review</div>
+              <div class="meeting-meta"><span>👥 3 attendees</span><span>⏱ 45 mins</span><span>📍 Zoom</span></div>
+            </div>
+            <div class="meeting-right"><div class="meeting-time">01 Mar</div><div class="meeting-badge badge-amber">In Progress</div></div>
+          </div>
+          <div class="meeting-item" onclick="openModal('hr')">
+            <div class="meeting-dot purple"></div>
+            <div class="meeting-info">
+              <div class="meeting-name">HR & Recruitment Pipeline</div>
+              <div class="meeting-meta"><span>👥 5 attendees</span><span>⏱ 38 mins</span><span>📍 Teams</span></div>
+            </div>
+            <div class="meeting-right"><div class="meeting-time">Today</div><div class="meeting-badge badge-purple">Just processed</div></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Upcoming This Week</div>
+            <div class="section-meta">3 scheduled</div>
+          </div>
+          <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 0;">
+            <div class="upcoming-card">
+              <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">Tomorrow · 10:00am</div>
+              <div style="font-size:13px; font-weight:500; margin-bottom:4px; color:#fff;">Board Strategy Session</div>
+              <div style="font-size:11px; color:var(--muted);">👥 Directors only · 2 hrs · Zoom</div>
+            </div>
+            <div class="upcoming-card">
+              <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">Wed 4 Mar · 2:00pm</div>
+              <div style="font-size:13px; font-weight:500; margin-bottom:4px; color:#fff;">Supplier Contract Review</div>
+              <div style="font-size:11px; color:var(--muted);">👥 4 attendees · 45 mins · Teams</div>
+            </div>
+            <div class="upcoming-card">
+              <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">Fri 6 Mar · 9:30am</div>
+              <div style="font-size:13px; font-weight:500; margin-bottom:4px; color:#fff;">Monthly All Hands</div>
+              <div style="font-size:11px; color:var(--muted);">👥 All staff · 60 mins · In-person</div>
+            </div>
+          </div>
+          <div style="padding:16px 20px; border-top:1px solid var(--border);">
+            <div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Quick Stats</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--muted)">Avg meeting length</span><span style="font-weight:500; color:#fff;">46 mins</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--muted)">Most active day</span><span style="font-weight:500; color:#fff;">Tuesday</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--muted)">Action completion rate</span><span style="font-weight:500; color:var(--green);">73%</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--muted)">Decisions this month</span><span style="font-weight:500; color:#fff;">38</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="tab-content" id="tab-actions">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">Open Action Items</div>
+          <div class="section-meta">11 open · 3 overdue</div>
+        </div>
+        <div class="action-item"><div class="action-check" onclick="toggleAction(this)"></div><div class="action-info"><div class="action-text">Send updated staffing projections to board ahead of strategy session</div><div class="action-meta"><div style="display:flex;align-items:center;gap:4px;"><div class="owner-dot">SC</div> Sarah C</div><span>📅 Due: 28 Feb</span><span class="meeting-badge badge-red">Overdue</span></div></div></div>
+        <div class="action-item"><div class="action-check" onclick="toggleAction(this)"></div><div class="action-info"><div class="action-text">Finalise Q1 compliance report and send to regulatory team</div><div class="action-meta"><div style="display:flex;align-items:center;gap:4px;"><div class="owner-dot">DK</div> David K</div><span>📅 Due: 01 Mar</span><span class="meeting-badge badge-red">Overdue</span></div></div></div>
+        <div class="action-item"><div class="action-check" onclick="toggleAction(this)"></div><div class="action-info"><div class="action-text">Book venue for All Hands and send calendar invites to all staff</div><div class="action-meta"><div style="display:flex;align-items:center;gap:4px;"><div class="owner-dot">LM</div> Laura M</div><span>📅 Due: 02 Mar</span><span class="meeting-badge badge-red">Overdue</span></div></div></div>
+        <div class="action-item"><div class="action-check" onclick="toggleAction(this)"></div><div class="action-info"><div class="action-text">Prepare onboarding pack for Ashfield NHS and share via secure portal</div><div class="action-meta"><div style="display:flex;align-items:center;gap:4px;"><div class="owner-dot">SC</div> Sarah C</div><span>📅 Due: 05 Mar</span><span class="meeting-badge badge-amber">Due soon</span></div></div></div>
+        <div class="action-item"><div class="action-check" onclick="toggleAction(this)"></div><div class="action-info"><div class="action-text">Review three shortlisted candidates for senior care coordinator role</div><div class="action-meta"><div style="display:flex;align-items:center;gap:4px;"><div class="owner-dot">JP</div> James P</div><span>📅 Due: 07 Mar</span><span class="meeting-badge badge-blue">On track</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- Pain Points -->
+    <div class="tab-content" id="tab-pain">
+      <div class="two-col">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Detected Pain Points</div>
+            <div class="section-meta">Auto-detected from meetings</div>
+          </div>
+          <div class="pain-panel">
+            <div class="pain-item"><div class="pain-icon red">⚠</div><div><div class="pain-title">Staff retention and recruitment pressure</div><div class="pain-desc">Mentioned in 4 of the last 6 meetings. Senior care coordinator turnover cited as a growing operational risk.</div><div class="pain-source">🎙 First mentioned: Ops Review · 24 Feb · 4 meetings total</div></div></div>
+            <div class="pain-item"><div class="pain-icon amber">◈</div><div><div class="pain-title">Compliance reporting is manual and time-consuming</div><div class="pain-desc">Finance and operations both flagged quarterly regulatory submissions taking 3–4 days each cycle with no automated pipeline.</div><div class="pain-source">🎙 First mentioned: Finance Review · 01 Mar · 2 meetings total</div></div></div>
+            <div class="pain-item"><div class="pain-icon red">⚠</div><div><div class="pain-title">Action items falling through the cracks</div><div class="pain-desc">3 consecutive meetings where items from previous meetings were not completed. No existing system for tracking commitments.</div><div class="pain-source">🎙 Recurring pattern detected across 3 meetings</div></div></div>
+            <div class="pain-item"><div class="pain-icon blue">◎</div><div><div class="pain-title">Supplier contract data is scattered</div><div class="pain-desc">Reference made to difficulties locating historical supplier agreements held across multiple folders with inconsistent naming.</div><div class="pain-source">🎙 First mentioned: Executive Standup · 27 Feb · 1 meeting</div></div></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-header"><div class="section-title">Pain Point Frequency</div><div class="section-meta">Last 30 days</div></div>
+          <div style="padding:20px; display:flex; flex-direction:column; gap:14px;">
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--muted)">Staff retention</span><span style="font-weight:600;color:var(--red)">4 mentions</span></div><div style="height:5px;background:var(--border2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:80%;background:var(--red);border-radius:3px;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--muted)">Action item follow-up</span><span style="font-weight:600;color:var(--red)">3 mentions</span></div><div style="height:5px;background:var(--border2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:60%;background:var(--red);border-radius:3px;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--muted)">Compliance reporting</span><span style="font-weight:600;color:var(--amber)">2 mentions</span></div><div style="height:5px;background:var(--border2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:40%;background:var(--amber);border-radius:3px;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--muted)">Contract data scattered</span><span style="font-weight:600;color:var(--blue)">1 mention</span></div><div style="height:5px;background:var(--border2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:20%;background:var(--blue);border-radius:3px;"></div></div></div>
+          </div>
+          <div style="padding:14px 20px;border-top:1px solid var(--border);background:var(--accent-deep);border-bottom-left-radius:10px;border-bottom-right-radius:10px;">
+            <div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:4px;">💡 Upsell Opportunity Detected</div>
+            <div style="font-size:12px;color:#9d88e0;line-height:1.5;">Staff retention and compliance pain points suggest a strong candidate for the Data Cleanup service. Mentioned across 6 meeting instances.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-meta" id="modalMeta"></div>
+      </div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const meetings = {
+  ops: { title:"Operations Review — Q1 Planning", meta:"24 Feb 2026 · 67 mins · 6 attendees · Zoom", summary:"The team reviewed Q1 operational performance across all 12 locations. Key discussion centred on staffing shortfalls in three northern sites, with the senior care coordinator vacancy identified as a critical risk. Budget variance of 8% was flagged by finance and attributed to agency staff costs. The board strategy session preparation was discussed at length, with Sarah tasked with compiling updated staffing projections.", decisions:["Agency staff usage to be capped at 15% per site from April onwards","Senior care coordinator vacancy to be escalated to priority hire","Q1 compliance report deadline extended to 5 March internally","All Hands meeting confirmed for 6 March — Laura to coordinate logistics"], attendees:["Sarah C","David K","Laura M","James P","Rachel T","Mark O"] },
+  exec: { title:"Executive Weekly Standup", meta:"27 Feb 2026 · 28 mins · 4 attendees · Teams", summary:"Weekly standup covered three main areas: progress on open action items from the Ops Review, an update on the Ashfield NHS onboarding timeline, and a brief discussion on the upcoming board session agenda. The supplier contract situation was raised briefly with a suggestion to review the filing structure before the Supplier Review on 4 March.", decisions:["Board session agenda to be circulated by Thursday","Ashfield NHS onboarding pack deadline confirmed as 5 March","Supplier contract folder structure review to be added to Wed agenda"], attendees:["Sarah C","David K","James P","Rachel T"] },
+  client: { title:"New Client Onboarding — Ashfield NHS", meta:"28 Feb 2026 · 54 mins · 8 attendees · In-person", summary:"Initial onboarding session with the Ashfield NHS commissioning team. Meeting covered service scope, staffing model, reporting requirements, and the go-live timeline of 1 April. The NHS team expressed particular interest in the compliance reporting process and requested a sample quarterly report.", decisions:["Go-live date confirmed as 1 April 2026","Monthly reporting format agreed — PDF summary plus raw data export","Follow-up technical session to be scheduled within two weeks"], attendees:["Sarah C","James P","Mark O","NHS: Tom B","NHS: Priya N","NHS: Claire H","NHS: Rob W"] },
+  finance: { title:"Finance & Budget Review", meta:"01 Mar 2026 · 45 mins · 3 attendees · Zoom", summary:"Monthly finance review covering February actuals against budget. Agency staff costs running 8% over budget across three sites. Revenue on track for Q1 target. Two supplier contracts flagged as up for renewal in April.", decisions:["Finance to prepare cost reduction options for agency staff by end of week","Two supplier contracts flagged for April renewal — procurement to review","Legal provision for compliance submission to be assessed"], attendees:["Sarah C","David K","Rachel T"] },
+  hr: { title:"HR & Recruitment Pipeline", meta:"Today · 38 mins · 5 attendees · Teams", summary:"Recruitment pipeline reviewed for all active vacancies. Senior care coordinator shortlist now at three candidates — interviews to be scheduled this week. Two care assistant positions filled following last month's campaign. Retention discussed as a broader concern with workload cited as primary driver of turnover.", decisions:["Interview panel for senior care coordinator to be confirmed by Wednesday","Digital induction pack project to be scoped — James to lead","Exit interview process to be formalised and results tracked quarterly"], attendees:["Sarah C","James P","Laura M","Kate R","Ben H"] }
+};
+
+function setNav(el) { document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
+function switchTab(name,el) { document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); el.classList.add('active'); document.getElementById('tab-'+name).classList.add('active'); }
+
+function openModal(key) {
+  const m = meetings[key];
+  document.getElementById('modalTitle').textContent = m.title;
+  document.getElementById('modalMeta').innerHTML = m.meta.split('·').map(s=>`<span>${s.trim()}</span>`).join('');
+  const chips = m.attendees.map(a=>`<div class="attendee-chip"><div class="chip-dot">${a.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>${a}</div>`).join('');
+  const decs = m.decisions.map(d=>`<div class="decision-item">${d}</div>`).join('');
+  document.getElementById('modalBody').innerHTML = `<div class="modal-section"><div class="modal-section-title">AI Summary</div><div class="summary-text">${m.summary}</div></div><div class="modal-section"><div class="modal-section-title">Decisions Made</div>${decs}</div><div class="modal-section" style="margin-bottom:0"><div class="modal-section-title">Attendees</div><div class="attendee-chips">${chips}</div></div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOnBg(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+function toggleAction(el) { el.classList.toggle('done'); el.textContent=el.classList.contains('done')?'✓':''; el.parentElement.querySelector('.action-text').classList.toggle('done-text'); }
+</script>
+</body>
+</html>
