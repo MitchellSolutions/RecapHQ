@@ -772,7 +772,7 @@
 
   <div class="faq-item" onclick="toggleFaq(this)">
     <div class="faq-question">Does my team need to install anything?<span class="faq-toggle">+</span></div>
-    <div class="faq-answer">No. RecapHQ connects directly to your existing Zoom, Teams, or Google Meet environment. Your team continues operating exactly as before. RecapHQ works in the background without requiring any change to established workflows.</div>
+    <div class="faq-answer">No. Simply send your transcript or audio file by email after each meeting. There is nothing to install and no change required to how your team already operates.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFaq(this)">
@@ -782,12 +782,12 @@
 
   <div class="faq-item" onclick="toggleFaq(this)">
     <div class="faq-question">How long does setup take?<span class="faq-toggle">+</span></div>
-    <div class="faq-answer">Most organisations are fully configured and processing their first meeting within 30 minutes. The entire onboarding process takes place remotely via a single Zoom call at no additional cost.</div>
+    <div class="faq-answer">Most clients are set up and receiving their first briefing within 24 hours. Onboarding takes place via a short call at no additional cost.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFaq(this)">
     <div class="faq-question">Can I choose which meetings get recorded?<span class="faq-toggle">+</span></div>
-    <div class="faq-answer">Entirely. You retain full control over which meetings RecapHQ processes. Rules can be configured by meeting type, attendee list, or calendar category, or each meeting can be approved individually.</div>
+    <div class="faq-answer">Entirely. You decide which meetings to submit. Simply send the ones you want processed and leave out the ones you do not.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFaq(this)">
@@ -805,7 +805,7 @@
 <div class="final-cta">
   <h2>Your organisation is meeting. It should also be learning.</h2>
   <p>Every conversation your team has contains conclusions worth retaining, obligations worth tracking, and patterns worth understanding. RecapHQ ensures none of that disappears when the call ends.</p>
-  <a class="btn-primary" href="#pricing" style="font-size:16px; padding:16px 36px;">Start Your Free Trial →</a>
+  <a class="btn-primary" href="#pricing" style="font-size:16px; padding:16px 36px;">Request a proposal →</a>
 </div>
 
 <!-- FOOTER -->
@@ -815,4 +815,18 @@
   <div>© 2026 RecapHQ. All rights reserved.</div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><s
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
+function toggleFaq(el) {
+  var answer = el.querySelector('.faq-answer');
+  var toggle = el.querySelector('.faq-toggle');
+  var isOpen = answer.classList.contains('open');
+  document.querySelectorAll('.faq-answer').forEach(function(a) { a.classList.remove('open'); });
+  document.querySelectorAll('.faq-toggle').forEach(function(t) { t.textContent = '+'; });
+  if (!isOpen) {
+    answer.classList.add('open');
+    toggle.textContent = '−';
+  }
+}
+</script>
+</body></html>
